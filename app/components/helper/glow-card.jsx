@@ -9,14 +9,11 @@ const GlowCard = ({ children, identifier }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || typeof window === 'undefined') return;
     
     const CONTAINER = containerRef.current;
-    const CARDS = cardsRef.current.filter(Boolean); // Only keep non-null refs
+    const CARDS = cardsRef.current.filter(Boolean);
     if (!CONTAINER || !CARDS.length) return;
 
     const CONFIG = {
@@ -28,9 +25,26 @@ const GlowCard = ({ children, identifier }) => {
       opacity: 0,
     };
 
+    const createTag = (index) => {
+      if (!mounted) return;
+      const tag = document.createElement('div');
+      tag.className = 'glow-card';
+      tag.style.setProperty('--start', `${index * CONFIG.gap}`);
+      tag.style.setProperty('--spread', `${CONFIG.spread}`);
+      return tag;
+    };
+
+    // Create and append glow tags
+    CARDS.forEach((CARD, index) => {
+      if (!CARD || !mounted) return;
+      const tag = createTag(index);
+      if (tag) {
+        CARD.appendChild(tag);
+      }
+    });
+
     const UPDATE = (event) => {
-      // Ensure we're running on the client and have valid elements
-      if (!event || !CONTAINER || typeof window === 'undefined') return;
+      if (!event || !CONTAINER || !mounted) return;
       
       const rect = CONTAINER.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
@@ -49,82 +63,73 @@ const GlowCard = ({ children, identifier }) => {
             mouseY > cardY - CONFIG.proximity &&
             mouseY < cardY + CARD_BOUNDS.height + CONFIG.proximity;
 
-          CARD.style.setProperty('--active', isInProximity ? 1 : CONFIG.opacity);
-
-          if (isInProximity) {
+          const setCardStyle = (card) => {
+            if (!card || !mounted) return;
             const CARD_CENTER = [
               cardX + CARD_BOUNDS.width * 0.5,
-              cardY + CARD_BOUNDS.height * 0.5,
+              cardY + CARD_BOUNDS.height * 0.5
             ];
+            
+            const ANGLE = Math.atan2(mouseY - CARD_CENTER[1], mouseX - CARD_CENTER[0]);
 
-            let ANGLE = (Math.atan2(mouseY - CARD_CENTER[1], mouseX - CARD_CENTER[0]) * 180) / Math.PI;
-            ANGLE = ANGLE < 0 ? ANGLE + 360 : ANGLE;
-            CARD.style.setProperty('--start', ANGLE + 90);
-          }
+            const DISTANCE = Math.sqrt(
+              Math.pow(mouseX - CARD_CENTER[0], 2) + 
+              Math.pow(mouseY - CARD_CENTER[1], 2)
+            );
+
+            const POWER = isInProximity ? 
+              (CONFIG.spread - Math.pow(DISTANCE, 0.5)) / CONFIG.spread : 
+              0;
+
+            const X_SPREAD = Math.cos(ANGLE) * POWER;
+            const Y_SPREAD = Math.sin(ANGLE) * POWER;
+
+            const SHADOW_X = X_SPREAD * (CONFIG.blur * 0.5);
+            const SHADOW_Y = Y_SPREAD * (CONFIG.blur * 0.5);
+
+            card.style.transform = 
+              isInProximity ? `translate(${X_SPREAD * CONFIG.spread}px, ${Y_SPREAD * (CONFIG.vertical ? CONFIG.spread : CONFIG.spread * 0.5)}px)` : '';
+            
+            card.style.boxShadow = 
+              isInProximity ? `${SHADOW_X}px ${SHADOW_Y}px ${CONFIG.blur}px rgba(0, 0, 0, ${CONFIG.opacity})` : '';
+          };
+
+          setCardStyle(CARD);
         });
       });
     };
 
-    const handleMouseMove = (e) => {
-      if (!CONTAINER || typeof window === 'undefined') return;
-      
-      const rect = CONTAINER.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setPosition({ x, y });
-      UPDATE(e);
-    };
-
-    const handleMouseLeave = () => {
-      if (typeof window === 'undefined') return;
+    const RESET = () => {
+      if (!mounted) return;
       CARDS.forEach(CARD => {
-        if (CARD) {
-          CARD.style.setProperty('--active', CONFIG.opacity);
-        }
+        if (!CARD) return;
+        CARD.style.transform = '';
+        CARD.style.boxShadow = '';
       });
     };
 
-    // Only apply styles if we're on the client and mounted
-    if (mounted && typeof window !== 'undefined') {
-      // Apply initial styles
-      CONTAINER.style.setProperty('--gap', CONFIG.gap);
-      CONTAINER.style.setProperty('--blur', CONFIG.blur);
-      CONTAINER.style.setProperty('--spread', CONFIG.spread);
-      CONTAINER.style.setProperty('--direction', CONFIG.vertical ? 'column' : 'row');
+    window.addEventListener('mousemove', UPDATE);
+    window.addEventListener('mouseleave', RESET);
 
-      // Add event listeners
-      CONTAINER.addEventListener('mousemove', handleMouseMove);
-      CONTAINER.addEventListener('mouseleave', handleMouseLeave);
-    }
-
-    // Cleanup function
     return () => {
-      if (mounted && typeof window !== 'undefined' && CONTAINER) {
-        CONTAINER.removeEventListener('mousemove', handleMouseMove);
-        CONTAINER.removeEventListener('mouseleave', handleMouseLeave);
-      }
+      window.removeEventListener('mousemove', UPDATE);
+      window.removeEventListener('mouseleave', RESET);
+      
+      // Clean up glow tags
+      CARDS.forEach(CARD => {
+        if (!CARD) return;
+        const glowTag = CARD.querySelector('.glow-card');
+        if (glowTag) {
+          CARD.removeChild(glowTag);
+        }
+      });
     };
-  }, [mounted]); // Only re-run effect when mounted state changes
+  }, [mounted]);
 
-  // Return null during SSR
   if (!mounted) {
     return (
-      <div className="min-h-[200px] bg-[#101123] rounded-lg">
-        {Array.isArray(children) 
-          ? children.map((child, index) => (
-              <article
-                key={index}
-                className={`glow-card glow-card-${identifier} h-fit border border-[#2a2e5a] relative bg-[#101123] text-gray-200 rounded-xl w-full`}
-              >
-                {child}
-              </article>
-            ))
-          : <article
-              className={`glow-card glow-card-${identifier} h-fit border border-[#2a2e5a] relative bg-[#101123] text-gray-200 rounded-xl w-full`}
-            >
-              {children}
-            </article>
-        }
+      <div className="relative" ref={containerRef}>
+        {children}
       </div>
     );
   }
