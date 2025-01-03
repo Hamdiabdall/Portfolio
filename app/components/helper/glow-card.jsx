@@ -29,41 +29,44 @@ const GlowCard = ({ children, identifier }) => {
     };
 
     const UPDATE = (event) => {
-      if (!event || !CONTAINER) return;
+      // Ensure we're running on the client and have valid elements
+      if (!event || !CONTAINER || typeof window === 'undefined') return;
       
       const rect = CONTAINER.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
 
-      CARDS.forEach(CARD => {
-        if (!CARD) return;
-        const CARD_BOUNDS = CARD.getBoundingClientRect();
-        const cardX = CARD_BOUNDS.left - rect.left;
-        const cardY = CARD_BOUNDS.top - rect.top;
+      requestAnimationFrame(() => {
+        CARDS.forEach(CARD => {
+          if (!CARD) return;
+          const CARD_BOUNDS = CARD.getBoundingClientRect();
+          const cardX = CARD_BOUNDS.left - rect.left;
+          const cardY = CARD_BOUNDS.top - rect.top;
 
-        const isInProximity = 
-          mouseX > cardX - CONFIG.proximity &&
-          mouseX < cardX + CARD_BOUNDS.width + CONFIG.proximity &&
-          mouseY > cardY - CONFIG.proximity &&
-          mouseY < cardY + CARD_BOUNDS.height + CONFIG.proximity;
+          const isInProximity = 
+            mouseX > cardX - CONFIG.proximity &&
+            mouseX < cardX + CARD_BOUNDS.width + CONFIG.proximity &&
+            mouseY > cardY - CONFIG.proximity &&
+            mouseY < cardY + CARD_BOUNDS.height + CONFIG.proximity;
 
-        CARD.style.setProperty('--active', isInProximity ? 1 : CONFIG.opacity);
+          CARD.style.setProperty('--active', isInProximity ? 1 : CONFIG.opacity);
 
-        if (isInProximity) {
-          const CARD_CENTER = [
-            cardX + CARD_BOUNDS.width * 0.5,
-            cardY + CARD_BOUNDS.height * 0.5,
-          ];
+          if (isInProximity) {
+            const CARD_CENTER = [
+              cardX + CARD_BOUNDS.width * 0.5,
+              cardY + CARD_BOUNDS.height * 0.5,
+            ];
 
-          let ANGLE = (Math.atan2(mouseY - CARD_CENTER[1], mouseX - CARD_CENTER[0]) * 180) / Math.PI;
-          ANGLE = ANGLE < 0 ? ANGLE + 360 : ANGLE;
-          CARD.style.setProperty('--start', ANGLE + 90);
-        }
+            let ANGLE = (Math.atan2(mouseY - CARD_CENTER[1], mouseX - CARD_CENTER[0]) * 180) / Math.PI;
+            ANGLE = ANGLE < 0 ? ANGLE + 360 : ANGLE;
+            CARD.style.setProperty('--start', ANGLE + 90);
+          }
+        });
       });
     };
 
     const handleMouseMove = (e) => {
-      if (!CONTAINER) return;
+      if (!CONTAINER || typeof window === 'undefined') return;
       
       const rect = CONTAINER.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -73,6 +76,7 @@ const GlowCard = ({ children, identifier }) => {
     };
 
     const handleMouseLeave = () => {
+      if (typeof window === 'undefined') return;
       CARDS.forEach(CARD => {
         if (CARD) {
           CARD.style.setProperty('--active', CONFIG.opacity);
@@ -80,19 +84,22 @@ const GlowCard = ({ children, identifier }) => {
       });
     };
 
-    // Apply initial styles
-    CONTAINER.style.setProperty('--gap', CONFIG.gap);
-    CONTAINER.style.setProperty('--blur', CONFIG.blur);
-    CONTAINER.style.setProperty('--spread', CONFIG.spread);
-    CONTAINER.style.setProperty('--direction', CONFIG.vertical ? 'column' : 'row');
+    // Only apply styles if we're on the client
+    if (typeof window !== 'undefined') {
+      // Apply initial styles
+      CONTAINER.style.setProperty('--gap', CONFIG.gap);
+      CONTAINER.style.setProperty('--blur', CONFIG.blur);
+      CONTAINER.style.setProperty('--spread', CONFIG.spread);
+      CONTAINER.style.setProperty('--direction', CONFIG.vertical ? 'column' : 'row');
 
-    // Add event listeners
-    CONTAINER.addEventListener('mousemove', handleMouseMove);
-    CONTAINER.addEventListener('mouseleave', handleMouseLeave);
+      // Add event listeners
+      CONTAINER.addEventListener('mousemove', handleMouseMove);
+      CONTAINER.addEventListener('mouseleave', handleMouseLeave);
+    }
 
     // Cleanup function
     return () => {
-      if (CONTAINER) {
+      if (CONTAINER && typeof window !== 'undefined') {
         CONTAINER.removeEventListener('mousemove', handleMouseMove);
         CONTAINER.removeEventListener('mouseleave', handleMouseLeave);
       }
@@ -101,21 +108,19 @@ const GlowCard = ({ children, identifier }) => {
 
   if (!mounted) {
     return (
-      <div className="min-h-[200px] bg-gray-800 rounded-lg animate-pulse">
+      <div className="min-h-[200px] bg-[#101123] rounded-lg">
         {Array.isArray(children) 
           ? children.map((child, index) => (
               <article
                 key={index}
-                className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
+                className={`glow-card glow-card-${identifier} h-fit border border-[#2a2e5a] relative bg-[#101123] text-gray-200 rounded-xl w-full`}
               >
-                <div className="glows"></div>
                 {child}
               </article>
             ))
           : <article
-              className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
+              className={`glow-card glow-card-${identifier} h-fit border border-[#2a2e5a] relative bg-[#101123] text-gray-200 rounded-xl w-full`}
             >
-              <div className="glows"></div>
               {children}
             </article>
         }
