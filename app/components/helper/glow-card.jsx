@@ -2,22 +2,27 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const GlowCard = ({ children, identifier }) => {
+const GlowCard = ({ children }) => {
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      if (cardsRef.current) {
+        cardsRef.current.forEach(card => {
+          if (card) {
+            const glowTags = card.querySelectorAll('.glow-card');
+            glowTags.forEach(tag => tag.remove());
+          }
+        });
+      }
+    };
   }, []);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
-    
-    const CONTAINER = containerRef.current;
-    const CARDS = cardsRef.current.filter(Boolean);
-    if (!CONTAINER || !CARDS.length) return;
 
     const CONFIG = {
       proximity: 40,
@@ -27,6 +32,11 @@ const GlowCard = ({ children, identifier }) => {
       vertical: false,
       opacity: 0,
     };
+
+    const CONTAINER = containerRef.current;
+    const CARDS = cardsRef.current.filter(Boolean);
+
+    if (!CONTAINER || !CARDS.length) return;
 
     const createTag = (index) => {
       const tag = document.createElement('div');
@@ -40,9 +50,7 @@ const GlowCard = ({ children, identifier }) => {
     CARDS.forEach((CARD, index) => {
       if (!CARD) return;
       const tag = createTag(index);
-      if (tag) {
-        CARD.appendChild(tag);
-      }
+      if (tag) CARD.appendChild(tag);
     });
 
     const UPDATE = (event) => {
@@ -113,35 +121,25 @@ const GlowCard = ({ children, identifier }) => {
     window.addEventListener('mouseleave', RESET);
 
     return () => {
-      CARDS.forEach(CARD => {
-        if (!CARD) return;
-        const glowTag = CARD.querySelector('.glow-card');
-        if (glowTag) {
-          CARD.removeChild(glowTag);
-        }
-      });
       window.removeEventListener('mousemove', UPDATE);
       window.removeEventListener('mouseleave', RESET);
+      CARDS.forEach(CARD => {
+        if (!CARD) return;
+        const glowTags = CARD.querySelectorAll('.glow-card');
+        glowTags.forEach(tag => tag.remove());
+      });
     };
   }, [mounted]);
 
-  if (!mounted) {
-    return (
-      <div className="relative" ref={containerRef}>
-        <div ref={el => cardsRef.current[0] = el}>
-          {children}
-        </div>
-      </div>
-    );
-  }
-
-  return (
+  const content = (
     <div className="relative" ref={containerRef}>
       <div ref={el => cardsRef.current[0] = el}>
         {children}
       </div>
     </div>
   );
+
+  return mounted ? content : <div className="relative">{children}</div>;
 };
 
 export default GlowCard;
