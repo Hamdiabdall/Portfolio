@@ -10,11 +10,12 @@ const nextConfig = {
     // Remove console logs in production
     removeConsole: process.env.NODE_ENV === "production",
   },
-  // Optimize for static exports
+  // Configure static export
   output: 'export',
-  // Disable server-side features when exporting
-  experimental: {
-    appDir: true,
+  // Disable features not compatible with static export
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
   },
 }
 

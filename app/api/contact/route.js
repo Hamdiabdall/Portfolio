@@ -2,6 +2,10 @@ import axios from 'axios';
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
+// Enable static export
+export const dynamic = 'force-static';
+export const revalidate = 0;
+
 // Create and configure Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -13,21 +17,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_PASSKEY, 
   },
 });
-
-// Helper function to send a message via Telegram
-async function sendTelegramMessage(token, chat_id, message) {
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  try {
-    const res = await axios.post(url, {
-      text: message,
-      chat_id,
-    });
-    return res.data.ok;
-  } catch (error) {
-    console.error('Error sending Telegram message:', error.response?.data || error.message);
-    return false;
-  }
-};
 
 // HTML email template
 const generateEmailTemplate = (name, email, userMessage) => `
@@ -44,6 +33,21 @@ const generateEmailTemplate = (name, email, userMessage) => `
     </div>
   </div>
 `;
+
+// Helper function to send a message via Telegram
+async function sendTelegramMessage(token, chat_id, message) {
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  try {
+    const res = await axios.post(url, {
+      text: message,
+      chat_id,
+    });
+    return res.data.ok;
+  } catch (error) {
+    console.error('Error sending Telegram message:', error.response?.data || error.message);
+    return false;
+  }
+}
 
 // Helper function to send an email via Nodemailer
 async function sendEmail(payload, message) {
@@ -65,7 +69,7 @@ async function sendEmail(payload, message) {
     console.error('Error while sending email:', error.message);
     return false;
   }
-};
+}
 
 export async function POST(request) {
   try {
@@ -108,4 +112,4 @@ export async function POST(request) {
       message: 'Server error occurred.',
     }, { status: 500 });
   }
-};
+}

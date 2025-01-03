@@ -84,8 +84,8 @@ const GlowCard = ({ children, identifier }) => {
       });
     };
 
-    // Only apply styles if we're on the client
-    if (typeof window !== 'undefined') {
+    // Only apply styles if we're on the client and mounted
+    if (mounted && typeof window !== 'undefined') {
       // Apply initial styles
       CONTAINER.style.setProperty('--gap', CONFIG.gap);
       CONTAINER.style.setProperty('--blur', CONFIG.blur);
@@ -99,13 +99,14 @@ const GlowCard = ({ children, identifier }) => {
 
     // Cleanup function
     return () => {
-      if (CONTAINER && typeof window !== 'undefined') {
+      if (mounted && typeof window !== 'undefined' && CONTAINER) {
         CONTAINER.removeEventListener('mousemove', handleMouseMove);
         CONTAINER.removeEventListener('mouseleave', handleMouseLeave);
       }
     };
-  }, [identifier, mounted]);
+  }, [mounted]); // Only re-run effect when mounted state changes
 
+  // Return null during SSR
   if (!mounted) {
     return (
       <div className="min-h-[200px] bg-[#101123] rounded-lg">
