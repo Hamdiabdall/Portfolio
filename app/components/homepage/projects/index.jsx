@@ -1,15 +1,17 @@
 'use client';
 
 import { projects } from "@/utils/data/projects";
-import Image from "next/image";
 import { BsArrowRight } from "react-icons/bs";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineExternalLink } from "react-icons/hi";
-import AnimationLottie from "../../helper/animation-lottie";
 import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
 
 const GlowCard = dynamic(() => import('../../helper/glow-card'), {
-  loading: () => <div>Loading...</div>,
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 rounded-lg p-6 h-64"></div>
+  ),
+  ssr: false
 });
 
 // Function to get tag color based on technology
@@ -29,6 +31,24 @@ const getTagColor = (tag) => {
 };
 
 const Projects = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse bg-gray-200 rounded-lg h-64"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div id="projects" className="container mx-auto px-4">
       <div className="flex flex-col items-center justify-center pt-10 lg:pt-20">
@@ -39,7 +59,7 @@ const Projects = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {projects.map((project, index) => (
+        {projects.map((project) => (
           <div key={project.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <GlowCard>
               <div className="p-6">

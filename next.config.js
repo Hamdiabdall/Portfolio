@@ -11,6 +11,7 @@ const nextConfig = {
   images: {
     domains: ['dev.to'],
   },
+  reactStrictMode: true,
 }
 
 module.exports = nextConfig

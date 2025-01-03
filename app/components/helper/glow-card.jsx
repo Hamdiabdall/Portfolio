@@ -1,13 +1,19 @@
 "use client"
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const GlowCard = ({ children, identifier }) => {
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     
     const CONTAINER = containerRef.current;
     const CARDS = cardsRef.current;
@@ -52,8 +58,18 @@ const GlowCard = ({ children, identifier }) => {
       }
     };
 
+    const handleMouseMove = (e) => {
+      if (!CONTAINER) return;
+
+      const rect = CONTAINER.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setPosition({ x, y });
+    };
+
     if (CONTAINER && CARDS.length > 0) {
       document.body.addEventListener('pointermove', UPDATE);
+      CONTAINER.addEventListener('mousemove', handleMouseMove);
     }
 
     const RESTYLE = () => {
@@ -72,11 +88,42 @@ const GlowCard = ({ children, identifier }) => {
     // Cleanup event listener
     return () => {
       document.body.removeEventListener('pointermove', UPDATE);
+      CONTAINER.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [identifier]);
+  }, [identifier, mounted]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[200px]">
+        {Array.isArray(children) 
+          ? children.map((child, index) => (
+              <article
+                key={index}
+                className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
+              >
+                <div className="glows"></div>
+                {child}
+              </article>
+            ))
+          : <article
+              className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
+            >
+              <div className="glows"></div>
+              {children}
+            </article>
+        }
+      </div>
+    );
+  }
 
   return (
-    <div className={`glow-container-${identifier} glow-container`} ref={containerRef}>
+    <div
+      ref={containerRef}
+      className={`glow-container-${identifier} glow-container relative overflow-hidden rounded-lg bg-white p-6`}
+      style={{
+        background: `radial-gradient(circle at ${position.x}px ${position.y}px, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+      }}
+    >
       {Array.isArray(children) 
         ? children.map((child, index) => (
             <article
