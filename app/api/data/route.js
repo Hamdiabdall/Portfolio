@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 
-// Enable static export
-export const dynamic = 'force-static';
+// Set the correct runtime
+export const runtime = 'edge';
 
 export async function GET(request) {
   return NextResponse.json({
     success: true,
-    message: 'hello!',
+    message: 'API is working!',
     data: {
-      message: 'Message and email sent successfully!',
+      message: 'Portfolio API is up and running.',
     }
   }, { status: 200 });
 };

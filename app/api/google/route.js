@@ -1,6 +1,9 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
 
+// Set the correct runtime
+export const runtime = 'edge';
+
 // Enable static export
 export const dynamic = 'force-static';
 export const revalidate = 0;
@@ -12,9 +15,9 @@ export async function POST(request) {
   if (!secret_key) {
     console.error('reCAPTCHA secret key is missing');
     return NextResponse.json({
-      error: "Server configuration error",
+      error: "Contact form is currently disabled",
       success: false,
-    }, { status: 500 });
+    }, { status: 503 });
   }
 
   try {

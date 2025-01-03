@@ -2,9 +2,8 @@ import axios from 'axios';
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-// Enable static export
-export const dynamic = 'force-static';
-export const revalidate = 0;
+// Set the correct runtime
+export const runtime = 'edge';
 
 // Create and configure Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -78,12 +77,12 @@ export async function POST(request) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chat_id = process.env.TELEGRAM_CHAT_ID;
 
-    // Validate environment variables
-    if (!token || !chat_id) {
+    // Return early if environment variables are not set
+    if (!token || !chat_id || !process.env.EMAIL_ADDRESS || !process.env.GMAIL_PASSKEY) {
       return NextResponse.json({
         success: false,
-        message: 'Telegram token or chat ID is missing.',
-      }, { status: 400 });
+        message: 'Contact form is currently disabled.',
+      }, { status: 503 });
     }
 
     const message = `New message from ${name}\n\nEmail: ${email}\n\nMessage:\n\n${userMessage}\n\n`;
