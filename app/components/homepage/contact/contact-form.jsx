@@ -35,19 +35,14 @@ function ContactForm() {
 
     try {
       setIsLoading(true);
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/contact`,
-        userInput
-      );
-
-      toast.success("Message sent successfully!");
+      toast.info("Contact form is currently disabled. Please reach out via LinkedIn or email directly.");
       setUserInput({
         name: "",
         email: "",
         message: "",
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error("Contact form is currently disabled");
     } finally {
       setIsLoading(false);
     };
