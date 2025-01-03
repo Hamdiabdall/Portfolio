@@ -8,10 +8,12 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 
 const GlowCard = dynamic(() => import('../../helper/glow-card'), {
+  ssr: false,
   loading: () => (
-    <div className="animate-pulse bg-gray-200 rounded-lg p-6 h-64"></div>
-  ),
-  ssr: false
+    <div className="animate-pulse bg-[#101123] rounded-lg p-6">
+      <div className="h-64 bg-gray-700 rounded-lg"></div>
+    </div>
+  )
 });
 
 // Function to get tag color based on technology

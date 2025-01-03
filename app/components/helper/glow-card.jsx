@@ -9,8 +9,11 @@ const GlowCard = ({ children, identifier }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
     
     const CONTAINER = containerRef.current;
     const CARDS = cardsRef.current.filter(Boolean);
@@ -26,7 +29,6 @@ const GlowCard = ({ children, identifier }) => {
     };
 
     const createTag = (index) => {
-      if (!mounted) return;
       const tag = document.createElement('div');
       tag.className = 'glow-card';
       tag.style.setProperty('--start', `${index * CONFIG.gap}`);
@@ -36,7 +38,7 @@ const GlowCard = ({ children, identifier }) => {
 
     // Create and append glow tags
     CARDS.forEach((CARD, index) => {
-      if (!CARD || !mounted) return;
+      if (!CARD) return;
       const tag = createTag(index);
       if (tag) {
         CARD.appendChild(tag);
@@ -44,7 +46,7 @@ const GlowCard = ({ children, identifier }) => {
     });
 
     const UPDATE = (event) => {
-      if (!event || !CONTAINER || !mounted) return;
+      if (!event || !CONTAINER) return;
       
       const rect = CONTAINER.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
@@ -64,7 +66,7 @@ const GlowCard = ({ children, identifier }) => {
             mouseY < cardY + CARD_BOUNDS.height + CONFIG.proximity;
 
           const setCardStyle = (card) => {
-            if (!card || !mounted) return;
+            if (!card) return;
             const CARD_CENTER = [
               cardX + CARD_BOUNDS.width * 0.5,
               cardY + CARD_BOUNDS.height * 0.5
@@ -100,7 +102,6 @@ const GlowCard = ({ children, identifier }) => {
     };
 
     const RESET = () => {
-      if (!mounted) return;
       CARDS.forEach(CARD => {
         if (!CARD) return;
         CARD.style.transform = '';
@@ -112,10 +113,6 @@ const GlowCard = ({ children, identifier }) => {
     window.addEventListener('mouseleave', RESET);
 
     return () => {
-      window.removeEventListener('mousemove', UPDATE);
-      window.removeEventListener('mouseleave', RESET);
-      
-      // Clean up glow tags
       CARDS.forEach(CARD => {
         if (!CARD) return;
         const glowTag = CARD.querySelector('.glow-card');
@@ -123,44 +120,26 @@ const GlowCard = ({ children, identifier }) => {
           CARD.removeChild(glowTag);
         }
       });
+      window.removeEventListener('mousemove', UPDATE);
+      window.removeEventListener('mouseleave', RESET);
     };
   }, [mounted]);
 
   if (!mounted) {
     return (
       <div className="relative" ref={containerRef}>
-        {children}
+        <div ref={el => cardsRef.current[0] = el}>
+          {children}
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={`glow-container-${identifier} glow-container relative overflow-hidden rounded-lg bg-white p-6`}
-      style={{
-        background: `radial-gradient(circle at ${position.x}px ${position.y}px, rgba(255,255,255,0.1) 0%, transparent 50%)`,
-      }}
-    >
-      {Array.isArray(children) 
-        ? children.map((child, index) => (
-            <article
-              key={index}
-              ref={(el) => (cardsRef.current[index] = el)}
-              className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
-            >
-              <div className="glows"></div>
-              {child}
-            </article>
-          ))
-        : <article
-            ref={(el) => (cardsRef.current[0] = el)}
-            className={`glow-card glow-card-${identifier} h-fit cursor-pointer border border-[#2a2e5a] transition-all duration-300 relative bg-[#101123] text-gray-200 rounded-xl hover:border-transparent w-full`}
-          >
-            <div className="glows"></div>
-            {children}
-          </article>
-      }
+    <div className="relative" ref={containerRef}>
+      <div ref={el => cardsRef.current[0] = el}>
+        {children}
+      </div>
     </div>
   );
 };
