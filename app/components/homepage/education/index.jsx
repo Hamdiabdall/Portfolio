@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BsPersonWorkspace } from "react-icons/bs";
 import lottieFile from '../../../assets/lottie/study.json';
 import AnimationLottie from "../../helper/animation-lottie";
-import GlowCard from "../../helper/glow-card";
+import GlowCard from "../../helper/dynamic-glow-card";
 
 function Education() {
   return (

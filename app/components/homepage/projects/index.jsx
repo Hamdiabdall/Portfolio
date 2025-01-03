@@ -1,34 +1,88 @@
-import { projectsData } from '@/utils/data/projects-data';
-import ProjectCard from './project-card';
+'use client';
+
+import { projects } from "@/utils/data/projects";
+import Image from "next/image";
+import { BsArrowRight } from "react-icons/bs";
+import { FaGithub } from "react-icons/fa";
+import { HiOutlineExternalLink } from "react-icons/hi";
+import AnimationLottie from "../../helper/animation-lottie";
+import dynamic from 'next/dynamic';
+
+const GlowCard = dynamic(() => import('../../helper/glow-card'), {
+  loading: () => <div>Loading...</div>,
+});
+
+// Function to get tag color based on technology
+const getTagColor = (tag) => {
+  const colors = {
+    'React': 'bg-blue-500 text-white',
+    'Next.js': 'bg-black text-white',
+    'JavaScript': 'bg-yellow-400 text-black',
+    'CSS': 'bg-purple-500 text-white',
+    'Tailwind CSS': 'bg-cyan-500 text-white',
+    'Node.js': 'bg-green-500 text-white',
+    'API Integration': 'bg-red-500 text-white',
+    'Animation': 'bg-pink-500 text-white',
+    'Responsive Design': 'bg-indigo-500 text-white',
+  };
+  return colors[tag] || 'bg-gray-500 text-white';
+};
 
 const Projects = () => {
-
   return (
-    <div id='projects' className="relative z-50  my-12 lg:my-24">
-      <div className="sticky top-10">
-        <div className="w-[80px] h-[80px] bg-violet-100 rounded-full absolute -top-3 left-0 translate-x-1/2 filter blur-3xl  opacity-30"></div>
-        <div className="flex items-center justify-start relative">
-          <span className="bg-[#1a1443] absolute left-0  w-fit text-white px-5 py-3 text-xl rounded-md">
-            PROJECTS
-          </span>
-          <span className="w-full h-[2px] bg-[#1a1443]"></span>
-        </div>
+    <div id="projects" className="container mx-auto px-4">
+      <div className="flex flex-col items-center justify-center pt-10 lg:pt-20">
+        <h2 className="text-3xl font-bold text-center mb-8">Featured Projects</h2>
+        <p className="text-gray-600 text-center max-w-2xl mb-12">
+          Here are some of my recent projects that showcase my skills and experience
+        </p>
       </div>
 
-      <div className="pt-24">
-        <div className="flex flex-col gap-6">
-          {projectsData.slice(0, 4).map((project, index) => (
-            <div
-              id={`sticky-card-${index + 1}`}
-              key={index}
-              className="sticky-card w-full mx-auto max-w-2xl sticky"
-            >
-              <div className="box-border flex items-center justify-center rounded shadow-[0_0_30px_0_rgba(0,0,0,0.3)] transition-all duration-[0.5s]">
-                <ProjectCard project={project} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {projects.map((project, index) => (
+          <div key={project.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <GlowCard>
+              <div className="p-6">
+                <h3 className="text-2xl font-semibold mb-3">{project.title}</h3>
+                <p className="text-gray-600 mb-4">{project.description}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {project.tags.map((tag) => (
+                    <span 
+                      key={tag} 
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getTagColor(tag)} transition-transform hover:scale-105`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-4 mt-6">
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors duration-200"
+                    >
+                      <FaGithub className="text-xl" /> 
+                      <span className="font-medium">Code</span>
+                    </a>
+                  )}
+                  {project.demo && (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors duration-200"
+                    >
+                      <HiOutlineExternalLink className="text-xl" /> 
+                      <span className="font-medium">Demo</span>
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            </GlowCard>
+          </div>
+        ))}
       </div>
     </div>
   );
