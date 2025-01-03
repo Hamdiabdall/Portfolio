@@ -17,6 +17,7 @@ const GlowCard = ({ children, identifier }) => {
     
     const CONTAINER = containerRef.current;
     const CARDS = cardsRef.current;
+    if (!CONTAINER || !CARDS.length) return;
 
     const CONFIG = {
       proximity: 40,
@@ -67,11 +68,6 @@ const GlowCard = ({ children, identifier }) => {
       setPosition({ x, y });
     };
 
-    if (CONTAINER && CARDS.length > 0) {
-      document.body.addEventListener('pointermove', UPDATE);
-      CONTAINER.addEventListener('mousemove', handleMouseMove);
-    }
-
     const RESTYLE = () => {
       CONTAINER.style.setProperty('--gap', CONFIG.gap);
       CONTAINER.style.setProperty('--blur', CONFIG.blur);
@@ -81,6 +77,9 @@ const GlowCard = ({ children, identifier }) => {
         CONFIG.vertical ? 'column' : 'row'
       );
     };
+
+    document.body.addEventListener('pointermove', UPDATE);
+    CONTAINER.addEventListener('mousemove', handleMouseMove);
 
     RESTYLE();
     UPDATE();
@@ -94,7 +93,7 @@ const GlowCard = ({ children, identifier }) => {
 
   if (!mounted) {
     return (
-      <div className="min-h-[200px]">
+      <div className="min-h-[200px] bg-gray-800 rounded-lg animate-pulse">
         {Array.isArray(children) 
           ? children.map((child, index) => (
               <article
