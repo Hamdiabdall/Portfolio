@@ -1,10 +1,12 @@
 .glow-container {
-  --spread: 60;
+  position: relative;
 }
 
 .glow-card {
-  --active: 0.15;
-  --start: 0;
+  position: relative;
+  background: transparent;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
 }
 
 .glow-card:is(:hover, :focus-visible) {

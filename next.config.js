@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    domains: ['res.cloudinary.com', 'dev-to-uploads.s3.amazonaws.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,22 +14,18 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    serverActions: true,
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      dns: false,
+      child_process: false,
+      tls: false,
+    };
+
+    return config;
   },
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
-        ],
-      },
-    ];
-  },
-};
+}
 
 module.exports = nextConfig;
