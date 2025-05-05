@@ -1,8 +1,8 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-// Set the correct runtime
-export const runtime = 'edge';
+// Remove runtime edge for static export compatibility
+// export const runtime = 'edge';
 
 // Enable static export
 export const dynamic = 'force-static';
