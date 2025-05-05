@@ -3,6 +3,9 @@
   "description": "Portfolio of Abu Said",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.18.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,7 +28,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.15",
-    "eslint": "^9.0.0",
+    "eslint": "^8.57.1",
     "eslint-config-next": "13.4.7",
     "postcss": "^8.4.28",
     "sass": "^1.66.1",

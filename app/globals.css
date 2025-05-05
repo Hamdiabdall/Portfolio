@@ -1,9 +1,7 @@
-// Tailwind CSS directives should go at the top
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-// Existing theme variables and custom styles
 :root {
   --foreground-rgb: rgb(211, 216, 232);
 }
@@ -17,11 +15,6 @@
 body {
   color: rgb(var(--foreground-rgb));
   background-color: #0d1224;
-}
-
-// Add SCSS extension to the sticky-card styles
-div.sticky-card {
-  top: calc(var(--index) * 4rem);
 }
 
 #sticky-card-1 {
@@ -38,4 +31,8 @@ div.sticky-card {
 
 #sticky-card-4 {
   --index: 4;
+}
+
+.sticky-card {
+  top: calc(var(--index) * 4rem);
 }
