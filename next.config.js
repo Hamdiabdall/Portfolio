@@ -3,6 +3,7 @@ const nextConfig = {
   output: 'export',
   reactStrictMode: true,
   images: {
+    unoptimized: true,
     domains: ['res.cloudinary.com', 'dev-to-uploads.s3.amazonaws.com'],
     remotePatterns: [
       {
