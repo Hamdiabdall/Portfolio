@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { NextResponse } from 'next/server';
 
+// Set the correct runtime
+export const runtime = 'edge';
+// Add force-static for static export compatibility
+export const dynamic = 'force-static';
+
 // Helper function to send a message via Telegram
 async function sendTelegramMessage(token, chat_id, message) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
