@@ -2,8 +2,10 @@
 
 import { personalData } from "@/utils/data/personal-data";
 import AboutSection from "./about";
-import Blog from "./blog";
-import ContactSection from "./contact";
+import dynamic from 'next/dynamic';
+const BlogComponent = dynamic(() => import("./blog"), { ssr: false });
+import dynamic from 'next/dynamic';
+const ContactSectionComponent = dynamic(() => import("./contact"), { ssr: false });
 import Education from "./education";
 import Experience from "./experience";
 import HeroSection from "./hero-section";
@@ -43,8 +45,8 @@ export default function HomePage() {
       <Skills />
       <Projects />
       <Education />
-      {!loading && <Blog blogs={blogs} />}
-      <ContactSection />
+      <BlogComponent blogs={blogs} />
+      <ContactSectionComponent />
     </div>
   );
 }

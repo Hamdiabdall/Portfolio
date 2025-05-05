@@ -3,7 +3,7 @@ export const personalData = {
   profile: '/profile.png',
   designation: "Software Enginner",
   description: "My name is Hamdi Abdallah. I am a professional and enthusiastic programmer in my daily life. I am a quick learner with a self-learning attitude. I love to learn and explore new technologies and am passionate about problem-solving. I love almost all the stacks of web application development and love to make the web more open to the world. My core skill is based on JavaScript and I love to do most of the things using JavaScript. I am available for any kind of job opportunity that suits my skills and interests.",
-  email: 'hamdiabdallah6818@gmail.com',
+  email: 'hamdi.abdallah@polytechnicien.tn ',
   phone: '+21699578152',
   address: 'Tunisia, Sousse',
   github: 'https://github.com/Hamdiabdall',
@@ -13,5 +13,5 @@ export const personalData = {
   stackOverflow: 'https://stackoverflow.com/users/22148468/hamdi-abdallah',
   leetcode: "https://leetcode.com/u/hamdiabdallah681/",
   devUsername: "hamdi681",
-  resume: "https://drive.google.com/file/d/1GXceuttp0R9WxrlC3l7iHu_qp1wwUmvn/view?usp=sharing"
+  resume: "https://drive.google.com/file/d/1amMiw-DEHI7U6w6pgPSEcLOjw18COCRK/view?usp=sharing"
 }
