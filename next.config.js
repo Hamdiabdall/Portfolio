@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
   reactStrictMode: true,
   images: {
     domains: ['res.cloudinary.com', 'dev-to-uploads.s3.amazonaws.com'],
