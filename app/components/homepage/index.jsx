@@ -4,7 +4,6 @@ import { personalData } from "@/utils/data/personal-data";
 import AboutSection from "./about";
 import dynamic from 'next/dynamic';
 const BlogComponent = dynamic(() => import("./blog"), { ssr: false });
-import dynamic from 'next/dynamic';
 const ContactSectionComponent = dynamic(() => import("./contact"), { ssr: false });
 import Education from "./education";
 import Experience from "./experience";
